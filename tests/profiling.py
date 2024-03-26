@@ -14,8 +14,18 @@ from typing import Callable, List, Tuple
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
 from transformers import AutoModel, AutoTokenizer
+from os import path as p
 
-from fastembed.embedding import DefaultEmbedding
+THIS_DIR_PATH = p.dirname(p.realpath(__file__))
+
+try:
+    from fastembed.embedding import DefaultEmbedding
+except ModuleNotFoundError:
+    import sys
+    sys.path.append(p.abspath(p.join(THIS_DIR_PATH, "..")))
+    from fastembed.embedding import DefaultEmbedding
+    
+CACHE_DIR = p.join(THIS_DIR_PATH, "..", "experiments", "models", "_cache")
 
 # %% [markdown]
 # ## 📖 Data
@@ -53,8 +63,8 @@ class HF:
     """
 
     def __init__(self, model_id: str):
-        self.model = AutoModel.from_pretrained(model_id)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_id)
+        self.model = AutoModel.from_pretrained(model_id, cache_dir=CACHE_DIR)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir=CACHE_DIR)
 
     def embed(self, texts: List[str]):
         encoded_input = self.tokenizer(texts, max_length=512, padding=True, truncation=True, return_tensors="pt")
@@ -73,7 +83,7 @@ hf.embed(documents).shape
 # Sorry, don't have a lot to set up here. We'll be using the default model, which is Flag Embedding, same as the Huggingface model.
 
 # %%
-embedding_model = DefaultEmbedding()
+embedding_model = DefaultEmbedding(cache_dir=CACHE_DIR)
 
 # %% [markdown]
 # ## 📊 Comparison

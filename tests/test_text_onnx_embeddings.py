@@ -5,6 +5,11 @@ import pytest
 
 from fastembed.text.text_embedding import TextEmbedding
 
+from os import path as p
+
+THIS_DIR_PATH = p.dirname(p.realpath(__file__))
+CACHE_DIR = p.join(THIS_DIR_PATH, "..", "experiments", "models", "_cache")
+
 CANONICAL_VECTOR_VALUES = {
     "BAAI/bge-small-en": np.array([-0.0232, -0.0255, 0.0174, -0.0639, -0.0006]),
     "BAAI/bge-small-en-v1.5": np.array([0.01522374, -0.02271799, 0.00860278, -0.07424029, 0.00386434]),
@@ -28,7 +33,6 @@ CANONICAL_VECTOR_VALUES = {
     "thenlper/gte-large": np.array([-0.01920587, 0.00113156, -0.00708992, -0.00632304, -0.04025577]),
 }
 
-
 def test_embedding():
     is_ubuntu_ci = os.getenv("IS_UBUNTU_CI")
 
@@ -37,7 +41,7 @@ def test_embedding():
             continue
 
         dim = model_desc["dim"]
-        model = TextEmbedding(model_name=model_desc["model"])
+        model = TextEmbedding(model_name=model_desc["model"], cache_dir=CACHE_DIR)
 
         docs = ["hello world", "flag embedding"]
         embeddings = list(model.embed(docs))
@@ -52,7 +56,7 @@ def test_embedding():
     "n_dims,model_name", [(384, "BAAI/bge-small-en-v1.5"), (768, "jinaai/jina-embeddings-v2-base-en")]
 )
 def test_batch_embedding(n_dims, model_name):
-    model = TextEmbedding(model_name=model_name)
+    model = TextEmbedding(model_name=model_name, cache_dir=CACHE_DIR)
 
     docs = ["hello world", "flag embedding"] * 100
     embeddings = list(model.embed(docs, batch_size=10))
@@ -65,7 +69,7 @@ def test_batch_embedding(n_dims, model_name):
     "n_dims,model_name", [(384, "BAAI/bge-small-en-v1.5"), (768, "jinaai/jina-embeddings-v2-base-en")]
 )
 def test_parallel_processing(n_dims, model_name):
-    model = TextEmbedding(model_name=model_name)
+    model = TextEmbedding(model_name=model_name, cache_dir=CACHE_DIR)
 
     docs = ["hello world", "flag embedding"] * 100
     embeddings = list(model.embed(docs, batch_size=10, parallel=2))

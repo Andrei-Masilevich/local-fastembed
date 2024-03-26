@@ -1,6 +1,11 @@
 import pytest
 from fastembed.sparse.sparse_text_embedding import SparseTextEmbedding
 
+from os import path as p
+
+THIS_DIR_PATH = p.dirname(p.realpath(__file__))
+CACHE_DIR = p.join(THIS_DIR_PATH, "..", "experiments", "models", "_cache")
+
 CANONICAL_COLUMN_VALUES = {
     "prithvida/Splade_PP_en_v1": {
         "indices": [
@@ -48,7 +53,7 @@ def test_batch_embedding():
 
     for model_name, expected_result in CANONICAL_COLUMN_VALUES.items():
         print("evaluating", model_name)
-        model = SparseTextEmbedding(model_name=model_name)
+        model = SparseTextEmbedding(model_name=model_name, cache_dir=CACHE_DIR)
         result = next(iter(model.embed(docs_to_embed, batch_size=6)))
         print(result.indices)
 
@@ -63,7 +68,7 @@ def test_single_embedding():
 
     for model_name, expected_result in CANONICAL_COLUMN_VALUES.items():
         print("evaluating", model_name)
-        model = SparseTextEmbedding(model_name=model_name)
+        model = SparseTextEmbedding(model_name=model_name, cache_dir=CACHE_DIR)
         result = next(iter(model.embed(docs_to_embed, batch_size=6)))
         print(result.indices)
 

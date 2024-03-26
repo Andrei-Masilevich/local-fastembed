@@ -101,7 +101,8 @@ class ModelManagement:
         return output_path
 
     @classmethod
-    def download_files_from_huggingface(cls, hf_source_repo: str, cache_dir: Optional[str] = None) -> str:
+    def download_files_from_huggingface(cls, hf_source_repo: str, cache_dir: Optional[str] = None,
+                                        local_files_only: bool = False) -> str:
         """
         Downloads a model from HuggingFace Hub.
         Args:
@@ -115,6 +116,7 @@ class ModelManagement:
             repo_id=hf_source_repo,
             ignore_patterns=["model.safetensors", "pytorch_model.bin"],
             cache_dir=cache_dir,
+            local_files_only=local_files_only
         )
 
     @classmethod
@@ -186,7 +188,7 @@ class ModelManagement:
         return model_dir
 
     @classmethod
-    def download_model(cls, model: Dict[str, Any], cache_dir: Path) -> Path:
+    def download_model(cls, model: Dict[str, Any], cache_dir: Path, local_files_only: bool) -> Path:
         """
         Downloads a model from HuggingFace Hub or Google Cloud Storage.
 
@@ -216,11 +218,12 @@ class ModelManagement:
 
         if hf_source:
             try:
-                return Path(cls.download_files_from_huggingface(hf_source, cache_dir=str(cache_dir)))
+                return Path(cls.download_files_from_huggingface(hf_source, cache_dir=str(cache_dir), 
+                                                                local_files_only = local_files_only))
             except (EnvironmentError, RepositoryNotFoundError, ValueError) as e:
                 logger.error(f"Could not download model from HuggingFace: {e}" "Falling back to other sources.")
 
-        if url_source:
+        if not local_files_only and url_source:
             return cls.retrieve_model_gcs(model["model"], url_source, str(cache_dir))
 
         raise ValueError(f"Could not download model {model['model']} from any source.")

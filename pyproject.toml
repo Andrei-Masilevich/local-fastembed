@@ -23,6 +23,7 @@ numpy = [
     { version = ">=1.21", python = "<3.12" },
     { version = ">=1.26", python = ">=3.12" }
 ]
+toml = "^0.10.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
@@ -37,6 +38,19 @@ pillow = "^10.2.0"
 cairosvg = "^2.7.1"
 mknotebooks = "^0.8.0"
 
+
+
+
+[tool.poetry.group.experiments.dependencies]
+transformers = "^4.39.0"
+torch = {version = "^2.2.1+cpu", source = "pytorch-cpu-src"}
+
+
+
+[[tool.poetry.source]]
+name = "pytorch-cpu-src"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
 
 [build-system]
 requires = ["poetry-core"]
